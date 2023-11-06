@@ -1,40 +1,40 @@
-Random Seed (Perlin Noise)
+# RANDOM SEED (PERLIN NOISE)
 
-- Inspiration
+## INSPIRATION
 
 In our group project, we selected Pacita Abad's "Wheels of Fortune" as the inspiration for our creative endeavor. The group project performed exceptionally well, achieving a near-perfect replication of this renowned artwork. In my individual assignment, I created animations building upon the group's code by utilizing random and Perlin noise functions.
-![An image of maincode](image/maincode.jpg)
 
+<img src="image/maincode.jpg" width="300"> <!-- 修改了图片的宽度 -->
 
-- Iteration
+## ITERATION
 
-  - iteration 1
-  Modified the quantity of dots using the random function.
-  ![An image of Iteration1](image/randomnumber.jpg)
+### Iteration 1
+Modified the quantity of dots using the random function.
+<img src="image/randomnumber.jpg" width="200"> <!-- 修改了图片的宽度 -->
 
-  - iteration 2
-  Adjusted dot colors using the random function.
-  ![An image of Iteration2](image/randomcolor.jpg)
+### Iteration 2
+Adjusted dot colors using the random function.
+<img src="image/randomcolor.jpg" width="200"> <!-- 修改了图片的宽度 -->
   
-  - iteration 3
-  Applied the Perlin noise function to the colors of middle dots.
-  ![An image of Iteration3](image/noise.jpg)
+### Iteration 3
+Applied the Perlin noise function to the colors of middle dots.
+<img src="image/noise.jpg" width="200"> <!-- 修改了图片的宽度 -->
 
-  - iteration 4
-  Drawing inspiration from the curve trail effect in the week9 tutorial, I attempted a similar modification to the pink curve. While successfully achieving this effect in the curve's code (as shown in image 1), the application to the main code required clearing the canvas to create the trail effect (as in image 2), making it impossible to leave a trail above other opaque shapes. Consequently, this effect was ultimately removed.
-  ![An image of Iteration4](image/curvedraw2.jpg)
-  ![An image of Iteration4](image/curvedraw.jpg)
+### Iteration 4
+Drawing inspiration from the curve trail effect in the week9 tutorial, I attempted a similar modification to the pink curve. While successfully achieving this effect in the curve's code (as shown in image 1), the application to the main code required clearing the canvas to create the trail effect (as in image 2), making it impossible to leave a trail above other opaque shapes. Consequently, this effect was ultimately removed.
+<img src="image/curvedraw2.jpg" width="300"> <!-- 修改了图片的宽度 -->
+<img src="image/curvedraw.jpg" width="300"> <!-- 修改了图片的宽度 -->
 
-  - iteration 5
-  Referencing the random position code from the seventh-week lecture, I changed positions to random locations and added an effect of objects falling from the screen.
-  ![An image of Iteration5](image/WechatIMG1219.jpg)
+### Iteration 5
+Referencing the random position code from the seventh-week lecture, I changed positions to random locations and added an effect of objects falling from the screen.
+<img src="image/WechatIMG1219.jpg" width="400"> <!-- 修改了图片的宽度 -->
 
-  - iteration 6
-  Lastly, I removed unused code to enhance overall efficiency.
+### Iteration 6
+Lastly, I removed unused code to enhance overall efficiency.
 
+## FINAL ANIMATION EFFECTS
+<img src="image/gif.gif" width="400"> <!-- 修改了图片的宽度 -->
 
-- Final Animation effects
-  ![An image of Iteration](image/gif.gif)
+## SUMMARY
 
-- Summary
 In summary, in my individual assignment, I explored numerous animation ideas and made several attempts, although not all ideas were fully realized. The final presentation of the work still has room for improvement.
