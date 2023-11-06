@@ -2,9 +2,6 @@ let artwork // Variable to store the artwork
 let positions = [] // Array to store the positions of the big circles
 let CirBgColor = [] // Array to store the background colors of the big circles
 let ShapeColor = [] // Array to store the shape colors inside the big circles
-// Array to store points for ZipLines
-let curve_40 = []
-let curve_25 = []
 let Dotscolor //change dots color to ramdom color
 let t = 0; // Global variable t for generating noise
 let middotscolor; // change colors of dots inside the central circle with perlin noise
@@ -16,12 +13,22 @@ function setup() {
   initArtworkData()
   artwork = new Artwork(positions, CirBgColor, ShapeColor)
   frameRate(10)// Set the frame rate
-  setInitialPositions();
+  setInitialPositions();//Set Initial Positions
   }
 
-function setInitialPositions() {
-  const minDistance = 150; // Minimum distance between big circles
+// Function to handle window resizing
+function windowResized() {
+  // Resize the canvas to match the new window dimensions
+  resizeCanvas(windowHeight, windowHeight);
+  // Update the canvas width and height variables
+  background(60, 80, 110);
+  setInitialPositions();
+}
 
+//Set Initial Positions to creat a ramdon drop
+function setInitialPositions() {
+  const minDistance = 160; // Minimum distance between big circles
+  
   for (let i = 0; i < positions.length; i++) {
     let validPosition = false;
     let xPos, yPos;
@@ -46,16 +53,6 @@ function setInitialPositions() {
     positions[i].xPos = xPos;
     positions[i].yPos = yPos;
   }
-}
-
-
-// Function to handle window resizing
-function windowResized() {
-  // Resize the canvas to match the new window dimensions
-  resizeCanvas(windowHeight, windowHeight);
-  // Update the canvas width and height variables
-  background(60, 80, 110);
-  setInitialPositions();
 }
 
 function draw() {
@@ -102,7 +99,6 @@ class Artwork {
     this.dotId1 = [1, 3, 6, 8, 15];
     this.ringId = [0, 4, 5, 10, 11, 13];
     this.zipId = [1, 8, 14];
-    this.zipId1 = [9];
   }
 
   //display these components of the artwork
@@ -191,8 +187,7 @@ class Artwork {
       }
     }
   }
-
-  //draw rings inside the big circle
+  
   //draw rings inside the big circle
   drawRings(x, y, i) {
     //draw rings at mid circle of the big circle
@@ -260,37 +255,7 @@ class Artwork {
         }
       }
     }
-
-if (curve_40.length > 0) {
-  for (var qw = 0; qw < curve_40.length; qw++) {
-    var num = qw / 2;
-    num = Math.round(num);
-    if (num >= curve_40.length - 1) {
-      num = curve_40.length - 1;
-    }
-  }
-}
-
-    //draw lines at mid circle of the big cirlce
-  if (this.zipId1.indexOf(i) !== -1) {
-   let numCircles = 3;
-
-  for (let j = 0; j < numCircles; j++) {
-    let numDot = (j + 2.5) * 10;
-    let DotRadius = 5;
-    angleMode(DEGREES);
-    let angle = 360 / numDot;
-    for (let k = 0; k < numDot; k++) {
-      let zx = x + cos(angle * k) * (j * 7 + 25);
-      let zy = y + sin(angle * k) * (j * 7 + 25);
-      fill(this.ShapeColor[i].Mid);
-      if (numDot >= 40) {
-        curve_40.push({ x: zx, y: zy });
-      }
-    }
-  }
-}
-}
+  }  
 
   //draw chain of small circles arranged in a hexagonal pattern.
   drawHexagons(x, y, i) {
@@ -344,11 +309,11 @@ if (curve_40.length > 0) {
     }
   }
 }
+
 // Initialize positions, background colors, and shape colors for the big circles.
 function initArtworkData() {
   // Position of each big circle
   positions = []; // Clear the position array
-
   while (positions.length < 17) {
     // Generate a random position
     let xPos = random(50, width - 50); // Random x-coordinate, ensuring it's within the screen
@@ -393,26 +358,23 @@ function initArtworkData() {
   // Shape colors inside each big circle
   ShapeColor = [
     // Line #1
-    { Out: color(15, 8, 104), Mid: color(12, 102, 50) },
-    { Out: color(227, 13, 2), Mid: color(249, 81, 8) },
+    { Mid: color(12, 102, 50) },
+    { Mid: color(249, 81, 8) },
     { Out: color(245, 20, 2) },
     // Line #2
-    { Out: color(21, 95, 151), Mid: color(251, 85, 63) },
-    { Out: color(15, 133, 52), Mid: color(251, 85, 63) },
-    { Out: color(213, 153, 217), Mid: color(60, 146, 195) },
-    { Out: color(21, 95, 151), Mid: color(249, 209, 244) },
+    { Mid: color(251, 85, 63) },
+    { Mid: color(251, 85, 63) },
+    { Mid: color(60, 146, 195) },
+    { Mid: color(249, 209, 244) },
     // Line #3
     { Out: color(0, 150, 145) },
-    { Out: color(227, 13, 2), Mid: color(243, 7, 11) },
-    { Out: color(245, 20, 2), Mid: color(251, 85, 63) },
-    { Out: color(243, 110, 9), Mid: color(12, 102, 50) },
+    { Mid: color(243, 7, 11) },
+    { Mid: color(251, 85, 63) },
+    { Mid: color(12, 102, 50) },
     // Line #4
-    { Out: color(245, 20, 2), Mid: color(60, 146, 195) },
-    { Out: color(196, 21, 90) },
-    { Out: color(20, 112, 185), Mid: color(251, 85, 63) },
-    { Out: color(227, 13, 2) },
+    { Mid: color(60, 146, 195) },
+    { Mid: color(251, 85, 63) },
     // Line #5
-    { Out: color(245, 20, 2), Mid: color(117, 194, 116) },
-    { Out: color(15, 133, 52) }
+    { Mid: color(117, 194, 116) },
   ]
 }
