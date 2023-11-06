@@ -5,99 +5,87 @@ let ShapeColor = [] // Array to store the shape colors inside the big circles
 // Array to store points for ZipLines
 let curve_40 = []
 let curve_25 = []
-// Scaling factor for axis
-let rateX = 1;
-let rateY = 1;
-let frameRateValue = 5 // Adjust the frame rate value
 let Dotscolor //change dots color to ramdom color
-let t; // Global variable t for generating noise
-let speed; // Global variable speed
+let t = 0; // Global variable t for generating noise
 let middotscolor; // change colors of dots inside the central circle with perlin noise
-let curvedraw;// Create the curve drawing object with trail via tutorial week8 part1
 
 function setup() {
   createCanvas(windowHeight, windowHeight)
-  rateX = width / 550.0;
-  rateY = height / 550.0;
   noCursor()
   background(60, 80, 110)
   initArtworkData()
   artwork = new Artwork(positions, CirBgColor, ShapeColor)
-  frameRate(frameRateValue)// Set the frame rate
-  curvedraw = new Curvedraw();// Initialize the curve drawing object
+  frameRate(10)// Set the frame rate
+  setInitialPositions();
+  }
+
+function setInitialPositions() {
+  const minDistance = 150; // Minimum distance between big circles
+
+  for (let i = 0; i < positions.length; i++) {
+    let validPosition = false;
+    let xPos, yPos;
+
+    // Keep generating random positions until a valid position is found
+    while (!validPosition) {
+      xPos = random(50, width - 50); // Random x coordinate within screen bounds
+      yPos = random(50, height - 50); // Random y coordinate within screen bounds
+
+      // Check if the new position is at least 150 pixels away from other circles
+      validPosition = true;
+      for (let j = 0; j < i; j++) {
+        const d = dist(xPos, yPos, positions[j].xPos, positions[j].yPos);
+        if (d < minDistance) {
+          validPosition = false;
+          break;
+        }
+      }
+    }
+
+    // Set the valid position
+    positions[i].xPos = xPos;
+    positions[i].yPos = yPos;
+  }
 }
+
 
 // Function to handle window resizing
 function windowResized() {
   // Resize the canvas to match the new window dimensions
   resizeCanvas(windowHeight, windowHeight);
   // Update the canvas width and height variables
-  rateX = width / 550.0;
-  rateY = height / 550.0;
   background(60, 80, 110);
+  setInitialPositions();
 }
+
 function draw() {
-  push();
-  scale(rateX, rateY);
+  background(60, 80, 110); // Clear the canvas
   artwork.display()
-  pop();
-  curvedraw.draw();// Draw the curve animation
-}
 
-class Curvedraw {
-  constructor() {
-    this.t = 0;
-    this.speed = 0.005;
-    this.trail = [];
-    this.curves = Curves();// Get curve data
-  }
+  for (let i = 0; i < positions.length; i++) {
+    // Generate a random speed for each circle between 1 and 5
+    let speed = random(1, 5);
 
-  draw() {
-    this.drawTrail();// Draw curve trails
-    this.t += this.speed;
-    if (this.t > 1) {
-      this.t = 0;
-    }
-  }
+    positions[i].yPos += speed; // Control the falling speed
 
-  getPointOnCurve(points, t) {
-    let n = points.length - 1;
-    let x = 0;
-    let y = 0;
-
-    for (let i = 0; i <= n; i++) {
-      let coefficient =
-        this.binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
-      x += points[i].x * coefficient;
-      y += points[i].y * coefficient;
-    }
-
-    return createVector(x, y);
-  }
-
-  binomialCoefficient(n, k) {
-    if (k === 0 || k === n) {
-      return 1;
-    }
-    let result = 1;
-    for (let i = 1; i <= k; i++) {
-      result *= (n - i + 1) / i;
-    }
-    return result;
-  }
-
-  drawTrail() {
-    for (let i = 0; i < this.curves.length; i++) {
-      let currentPoint = this.getPointOnCurve(this.curves[i], this.t);
-      this.trail.push(currentPoint.copy());
-
-      for (let j = 0; j < this.trail.length; j++) {
-        ellipse(this.trail[j].x, this.trail[j].y, 5);// Draw trail points
+    // Ensure that circles don't overlap during their fall
+    for (let j = 0; j < positions.length; j++) {
+      if (i !== j) {
+        let d = dist(positions[i].xPos, positions[i].yPos, positions[j].xPos, positions[j].yPos);
+        let minDistance = 150; // Minimum distance between big circles
+        if (d < minDistance) {
+          // If the distance is too small, adjust the position of the current circle
+          let angle = atan2(positions[j].yPos - positions[i].yPos, positions[j].xPos - positions[i].xPos);
+          positions[i].xPos = positions[j].xPos - minDistance * cos(angle);
+          positions[i].yPos = positions[j].yPos - minDistance * sin(angle);
+        }
       }
+    }
 
-      if (this.trail.length > 20) {
-        this.trail.splice(0, 1);// Limit the number of trail points
-      }
+    // If a big circle goes beyond the bottom of the canvas, reset its position
+    if (positions[i].yPos > height) {
+      positions[i].xPos = random(width); // Randomly reset the x-coordinate
+      positions[i].yPos = random(-200, -100); // Set them off-screen initially
     }
   }
 }
@@ -109,7 +97,6 @@ class Artwork {
     this.positions = positions;
     this.CirBgColor = CirBgColor;
     this.ShapeColor = ShapeColor;
-
     this.circleId = [0, 1, 4, 9, 10, 11];
     this.dotId = [1, 8, 14];
     this.dotId1 = [1, 3, 6, 8, 15];
@@ -129,9 +116,6 @@ class Artwork {
       this.drawZipLine(x, y, i); //draws lines connecting various points
       this.drawHexagons(x, y, i); //draws a chain of small circles in a hexagonal pattern
     }
-    //draws straight lines between two specified points
-    this.drawStraightLine(188, 85, 285, 0);
-    this.drawStraightLine(193, 488, 315, 405);
   }
 
   //draw big circles
@@ -277,40 +261,36 @@ class Artwork {
       }
     }
 
-    if (curve_40.length > 0 && curve_25.length > 0) {
-      for (var qw = 0; qw < curve_40.length; qw++) {
-        var num = qw / 2;
-        num = Math.round(num);
-        if (num >= curve_25.length - 1) {
-          num = curve_25.length - 1;
-        }
-        line(curve_40[qw].x, curve_40[qw].y, curve_25[num].x, curve_25[num].y);
-      }
+if (curve_40.length > 0) {
+  for (var qw = 0; qw < curve_40.length; qw++) {
+    var num = qw / 2;
+    num = Math.round(num);
+    if (num >= curve_40.length - 1) {
+      num = curve_40.length - 1;
     }
+  }
+}
 
     //draw lines at mid circle of the big cirlce
-    if (this.zipId1.indexOf(i) !== -1 && curve_40.length == 0) {
-      let numCircles = 3;
+  if (this.zipId1.indexOf(i) !== -1) {
+   let numCircles = 3;
 
-      for (let j = 0; j < numCircles; j++) {
-        let numDot = (j + 2.5) * 10;
-        let DotRadius = 5;
-        angleMode(DEGREES);
-        let angle = 360 / numDot;
-        for (let k = 0; k < numDot; k++) {
-          let zx = x + cos(angle * k) * (j * 7 + 25);
-          let zy = y + sin(angle * k) * (j * 7 + 25);
-          fill(this.ShapeColor[i].Mid);
-          if (numDot == 25) {
-            curve_25.push({ x: zx, y: zy });
-          }
-          if (numDot >= 40) {
-            curve_40.push({ x: zx, y: zy });
-          }
-        }
+  for (let j = 0; j < numCircles; j++) {
+    let numDot = (j + 2.5) * 10;
+    let DotRadius = 5;
+    angleMode(DEGREES);
+    let angle = 360 / numDot;
+    for (let k = 0; k < numDot; k++) {
+      let zx = x + cos(angle * k) * (j * 7 + 25);
+      let zy = y + sin(angle * k) * (j * 7 + 25);
+      fill(this.ShapeColor[i].Mid);
+      if (numDot >= 40) {
+        curve_40.push({ x: zx, y: zy });
       }
     }
   }
+}
+}
 
   //draw chain of small circles arranged in a hexagonal pattern.
   drawHexagons(x, y, i) {
@@ -363,40 +343,33 @@ class Artwork {
       ellipse(x, y, 6.5, 6.5);
     }
   }
-
-  // Draw a straight line between two points.
-  drawStraightLine(x1, y1, x2, y2) {
-    stroke(255, 28, 0);
-    strokeWeight(2);
-    line(x1, y1, x2, y2);
-  }
 }
-
 // Initialize positions, background colors, and shape colors for the big circles.
 function initArtworkData() {
-  //position of each big circle
-  positions = [
-    //redius: 75, space-between_horizontal: 20, space-between_vertical: 0
-    { xPos: 75, yPos: 75 },
-    { xPos: 245, yPos: 35 },
-    { xPos: 415, yPos: -5 },
-    { xPos: 18, yPos: 225 },
-    { xPos: 188, yPos: 185 },
-    { xPos: 358, yPos: 145 },
-    { xPos: 528, yPos: 105 },
-    { xPos: -35, yPos: 375 },
-    { xPos: 135, yPos: 335 },
-    { xPos: 305, yPos: 295 },
-    { xPos: 475, yPos: 255 },
-    { xPos: 85, yPos: 485 },
-    { xPos: 255, yPos: 445 },
-    { xPos: 425, yPos: 405 },
-    { xPos: 595, yPos: 365 },
-    { xPos: 368, yPos: 555 },
-    { xPos: 538, yPos: 515 }
-  ]
+  // Position of each big circle
+  positions = []; // Clear the position array
 
-  //Background colors inside each big circle
+  while (positions.length < 17) {
+    // Generate a random position
+    let xPos = random(50, width - 50); // Random x-coordinate, ensuring it's within the screen
+    let yPos = random(50, height - 50); // Random y-coordinate, ensuring it's within the screen
+    let validPosition = true; // Flag to mark if the generated position is valid
+
+    // Check the distance between the generated position and existing positions
+    for (let i = 0; i < positions.length; i++) {
+      let d = dist(xPos, yPos, positions[i].xPos, positions[i].yPos);
+      if (d < 160) {
+        validPosition = false;
+        break; // If the distance is less than 160, the position is invalid, so exit the loop
+      }
+    }
+
+    if (validPosition) {
+      positions.push({ xPos, yPos }); // If the position is valid, add it to the array
+    }
+  }
+
+  // Background colors inside each big circle
   CirBgColor = [
     { Out: color(200, 230, 241) },
     { Out: color(250, 158, 7) },
@@ -417,92 +390,29 @@ function initArtworkData() {
     { Out: color(207, 241, 242) }
   ]
 
-  //Shape colors inside each big circle
+  // Shape colors inside each big circle
   ShapeColor = [
-    //line #1
+    // Line #1
     { Out: color(15, 8, 104), Mid: color(12, 102, 50) },
     { Out: color(227, 13, 2), Mid: color(249, 81, 8) },
     { Out: color(245, 20, 2) },
-    //line #2
+    // Line #2
     { Out: color(21, 95, 151), Mid: color(251, 85, 63) },
     { Out: color(15, 133, 52), Mid: color(251, 85, 63) },
     { Out: color(213, 153, 217), Mid: color(60, 146, 195) },
     { Out: color(21, 95, 151), Mid: color(249, 209, 244) },
-    //line #3
+    // Line #3
     { Out: color(0, 150, 145) },
     { Out: color(227, 13, 2), Mid: color(243, 7, 11) },
     { Out: color(245, 20, 2), Mid: color(251, 85, 63) },
     { Out: color(243, 110, 9), Mid: color(12, 102, 50) },
-    //line #4
+    // Line #4
     { Out: color(245, 20, 2), Mid: color(60, 146, 195) },
     { Out: color(196, 21, 90) },
     { Out: color(20, 112, 185), Mid: color(251, 85, 63) },
     { Out: color(227, 13, 2) },
-    //line #5
+    // Line #5
     { Out: color(245, 20, 2), Mid: color(117, 194, 116) },
     { Out: color(15, 133, 52) }
   ]
-}
-
-function Curves() {
-  noFill()
-  stroke('#E93468')
-  strokeWeight(5)
-  return [
-    [
-      { x: 75, y: 75 },
-      { x: 67, y: 92 },
-      { x: 64, y: 120 },
-      { x: 75, y: 145 },
-      { x: 95, y: 160 },
-      { x: 110, y: 162 }
-    ],
-    [
-      { x: 188, y: 185 },
-      { x: 193, y: 172 },
-      { x: 208, y: 150 },
-      { x: 250, y: 125 },
-      { x: 260, y: 130 }
-    ],
-    [
-      { x: 415, y: -5 },
-      { x: 420, y: 20 },
-      { x: 440, y: 40 },
-      { x: 470, y: 45 },
-      { x: 495, y: 35 }
-    ],
-    [
-      { x: -35, y: 375 },
-      { x: -2.5, y: 360 },
-      { x: 20, y: 340 },
-      { x: 47, y: 325 },
-      { x: 55, y: 327 }
-    ],
-    [
-      { x: 305, y: 295 },
-      { x: 325, y: 280 },
-      { x: 350, y: 275 },
-      { x: 375, y: 275 },
-      { x: 405, y: 300 },
-      { x: 410, y: 315 }
-    ],
-    [
-      { x: 475, y: 255 },
-      { x: 477, y: 240 },
-      { x: 485, y: 225 },
-      { x: 500, y: 212 },
-      { x: 510, y: 205 },
-      { x: 530, y: 200 },
-      { x: 550, y: 195 }
-    ],
-    [
-      { x: 85, y: 485 },
-      { x: 105, y: 510 },
-      { x: 130, y: 525 },
-      { x: 150, y: 530 },
-      { x: 170, y: 528 },
-      { x: 190, y: 523 },
-      { x: 195, y: 520 }
-    ]
-  ];
 }
