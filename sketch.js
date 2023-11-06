@@ -13,6 +13,7 @@ let Dotscolor //change dots color to ramdom color
 let t; // Global variable t for generating noise
 let speed; // Global variable speed
 let middotscolor; // change colors of dots inside the central circle with perlin noise
+let curvedraw;// Create the curve drawing object with trail via tutorial week8 part1
 
 function setup() {
   createCanvas(windowHeight, windowHeight)
@@ -23,6 +24,7 @@ function setup() {
   initArtworkData()
   artwork = new Artwork(positions, CirBgColor, ShapeColor)
   frameRate(frameRateValue)// Set the frame rate
+  curvedraw = new Curvedraw();// Initialize the curve drawing object
 }
 
 // Function to handle window resizing
@@ -39,6 +41,65 @@ function draw() {
   scale(rateX, rateY);
   artwork.display()
   pop();
+  curvedraw.draw();// Draw the curve animation
+}
+
+class Curvedraw {
+  constructor() {
+    this.t = 0;
+    this.speed = 0.005;
+    this.trail = [];
+    this.curves = Curves();// Get curve data
+  }
+
+  draw() {
+    this.drawTrail();// Draw curve trails
+    this.t += this.speed;
+    if (this.t > 1) {
+      this.t = 0;
+    }
+  }
+
+  getPointOnCurve(points, t) {
+    let n = points.length - 1;
+    let x = 0;
+    let y = 0;
+
+    for (let i = 0; i <= n; i++) {
+      let coefficient =
+        this.binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
+      x += points[i].x * coefficient;
+      y += points[i].y * coefficient;
+    }
+
+    return createVector(x, y);
+  }
+
+  binomialCoefficient(n, k) {
+    if (k === 0 || k === n) {
+      return 1;
+    }
+    let result = 1;
+    for (let i = 1; i <= k; i++) {
+      result *= (n - i + 1) / i;
+    }
+    return result;
+  }
+
+  drawTrail() {
+    for (let i = 0; i < this.curves.length; i++) {
+      let currentPoint = this.getPointOnCurve(this.curves[i], this.t);
+      this.trail.push(currentPoint.copy());
+
+      for (let j = 0; j < this.trail.length; j++) {
+        ellipse(this.trail[j].x, this.trail[j].y, 5);// Draw trail points
+      }
+
+      if (this.trail.length > 20) {
+        this.trail.splice(0, 1);// Limit the number of trail points
+      }
+    }
+  }
 }
 
 // defines an Artwork class. This class is responsible for generating 
@@ -67,7 +128,6 @@ class Artwork {
       this.drawRings(x, y, i); //draws rings inside the circles
       this.drawZipLine(x, y, i); //draws lines connecting various points
       this.drawHexagons(x, y, i); //draws a chain of small circles in a hexagonal pattern
-      this.drawCurves(x, y, i);//draws smooth curves based on predefined control points
     }
     //draws straight lines between two specified points
     this.drawStraightLine(188, 85, 285, 0);
@@ -304,100 +364,7 @@ class Artwork {
     }
   }
 
-  // Draw smooth curves using given points for each curve.
-  drawCurves(x, y, i) {
-    noFill();
-    stroke("#E93468");
-    strokeWeight(5);
-
-    let curve1 = [
-      { x: 75, y: 75 },
-      { x: 67, y: 92 },
-      { x: 64, y: 120 },
-      { x: 75, y: 145 },
-      { x: 95, y: 160 },
-      { x: 110, y: 162 },
-    ];
-
-    let curve2 = [
-      { x: 188, y: 185 },
-      { x: 193, y: 172 },
-      { x: 208, y: 150 },
-      { x: 250, y: 125 },
-      { x: 260, y: 130 },
-    ];
-
-    let curve3 = [
-      { x: 415, y: -5 },
-      { x: 420, y: 20 },
-      { x: 440, y: 40 },
-      { x: 470, y: 45 },
-      { x: 495, y: 35 },
-    ];
-
-    let curve4 = [
-      { x: -35, y: 375 },
-      { x: -2.5, y: 360 },
-      { x: 20, y: 340 },
-      { x: 47, y: 325 },
-      { x: 55, y: 327 },
-    ];
-
-    let curve5 = [
-      { x: 305, y: 295 },
-      { x: 325, y: 280 },
-      { x: 350, y: 275 },
-      { x: 375, y: 275 },
-      { x: 405, y: 300 },
-      { x: 410, y: 315 },
-    ];
-
-    let curve6 = [
-      { x: 475, y: 255 },
-      { x: 477, y: 240 },
-      { x: 485, y: 225 },
-      { x: 500, y: 212 },
-      { x: 510, y: 205 },
-      { x: 530, y: 200 },
-      { x: 550, y: 195 },
-    ];
-
-    let curve7 = [
-      { x: 85, y: 485 },
-      { x: 105, y: 510 },
-      { x: 130, y: 525 },
-      { x: 150, y: 530 },
-      { x: 170, y: 528 },
-      { x: 190, y: 523 },
-      { x: 195, y: 520 },
-    ];
-
-    const arr = [curve1, curve2, curve3, curve4, curve5, curve6, curve7];
-    arr.forEach((curve) => {
-      this.drawSmoothCurve(curve);
-    });
-  }
-
-  // Draw a smooth curve connecting a series of points using bezierVertex.
-  drawSmoothCurve(points) {
-    beginShape();
-    // First point
-    vertex(points[0].x, points[0].y);
-
-    // Use bezierVertex to connect other points
-    for (let i = 1; i < points.length - 2; i++) {
-      let xc = (points[i].x + points[i + 1].x) / 2;
-      let yc = (points[i].y + points[i + 1].y) / 2;
-      bezierVertex(points[i].x, points[i].y, xc, yc, xc, yc);
-    }
-
-    // End point
-    vertex(points[points.length - 1].x, points[points.length - 1].y);
-
-    endShape();
-  }
-
-  //// Draw a straight line between two points.
+  // Draw a straight line between two points.
   drawStraightLine(x1, y1, x2, y2) {
     stroke(255, 28, 0);
     strokeWeight(2);
@@ -475,4 +442,67 @@ function initArtworkData() {
     { Out: color(245, 20, 2), Mid: color(117, 194, 116) },
     { Out: color(15, 133, 52) }
   ]
+}
+
+function Curves() {
+  noFill()
+  stroke('#E93468')
+  strokeWeight(5)
+  return [
+    [
+      { x: 75, y: 75 },
+      { x: 67, y: 92 },
+      { x: 64, y: 120 },
+      { x: 75, y: 145 },
+      { x: 95, y: 160 },
+      { x: 110, y: 162 }
+    ],
+    [
+      { x: 188, y: 185 },
+      { x: 193, y: 172 },
+      { x: 208, y: 150 },
+      { x: 250, y: 125 },
+      { x: 260, y: 130 }
+    ],
+    [
+      { x: 415, y: -5 },
+      { x: 420, y: 20 },
+      { x: 440, y: 40 },
+      { x: 470, y: 45 },
+      { x: 495, y: 35 }
+    ],
+    [
+      { x: -35, y: 375 },
+      { x: -2.5, y: 360 },
+      { x: 20, y: 340 },
+      { x: 47, y: 325 },
+      { x: 55, y: 327 }
+    ],
+    [
+      { x: 305, y: 295 },
+      { x: 325, y: 280 },
+      { x: 350, y: 275 },
+      { x: 375, y: 275 },
+      { x: 405, y: 300 },
+      { x: 410, y: 315 }
+    ],
+    [
+      { x: 475, y: 255 },
+      { x: 477, y: 240 },
+      { x: 485, y: 225 },
+      { x: 500, y: 212 },
+      { x: 510, y: 205 },
+      { x: 530, y: 200 },
+      { x: 550, y: 195 }
+    ],
+    [
+      { x: 85, y: 485 },
+      { x: 105, y: 510 },
+      { x: 130, y: 525 },
+      { x: 150, y: 530 },
+      { x: 170, y: 528 },
+      { x: 190, y: 523 },
+      { x: 195, y: 520 }
+    ]
+  ];
 }
