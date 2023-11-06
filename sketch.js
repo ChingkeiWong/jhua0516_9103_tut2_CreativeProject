@@ -10,6 +10,9 @@ let rateX = 1;
 let rateY = 1;
 let frameRateValue = 5 // Adjust the frame rate value
 let Dotscolor //change dots color to ramdom color
+let t; // Global variable t for generating noise
+let speed; // Global variable speed
+let middotscolor; // change colors of dots inside the central circle with perlin noise
 
 function setup() {
   createCanvas(windowHeight, windowHeight)
@@ -121,6 +124,14 @@ class Artwork {
 
     //mid circle
     if (this.dotId1.indexOf(i) !== -1) {
+      // Check if the current index corresponds to the middle circle
+      let seed = i * 0.1;
+      // Use Perlin noise to create dynamic color
+      middotscolor = color(
+        map(noise(t + seed), 0, 1, 0, 255),
+        map(noise(t + 1000 + seed), 0, 1, 0, 255),
+        map(noise(t + 2000 + seed), 0, 1, 0, 255)
+        );      
       let numCircles = 3;
       for (let j = 0; j < numCircles; j++) {
         let numDot = (j + 2.5) * 10;
@@ -130,7 +141,7 @@ class Artwork {
         for (let k = 0; k < numDot; k++) {
           let dotX = x + cos(angle * k) * (j * 7 + 25);
           let dotY = y + sin(angle * k) * (j * 7 + 25);
-          fill(this.ShapeColor[i].Mid);
+          fill(middotscolor)//change fixed color to perlin noise
           ellipse(dotX, dotY, DotRadius, DotRadius);
         }
       }
