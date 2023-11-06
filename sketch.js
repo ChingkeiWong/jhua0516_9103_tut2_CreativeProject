@@ -8,6 +8,7 @@ let curve_25 = []
 // Scaling factor for axis
 let rateX = 1;
 let rateY = 1;
+let frameRateValue = 5 // Adjust the frame rate value
 
 function setup() {
   createCanvas(windowHeight, windowHeight)
@@ -17,6 +18,7 @@ function setup() {
   background(60, 80, 110)
   initArtworkData()
   artwork = new Artwork(positions, CirBgColor, ShapeColor)
+  frameRate(frameRateValue)// Set the frame rate
 }
 
 // Function to handle window resizing
@@ -96,7 +98,9 @@ class Artwork {
   drawDotsIn(x, y, i) {
     //outer circle
     if (i !== 1 && i !== 8 && i !== 14) {
-      let numCircles = 5;
+      // Change from a fixed number to a random number of circles
+      // Use a random function to generate an integer between 1 and 6 to determine the number of circles
+      let numCircles = int(random(1, 6))
       for (let j = 0; j < numCircles; j++) {
         let numDot = (j + 3.5) * 10;
         let DotRadius = 5;
