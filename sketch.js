@@ -9,6 +9,7 @@ let curve_25 = []
 let rateX = 1;
 let rateY = 1;
 let frameRateValue = 5 // Adjust the frame rate value
+let Dotscolor //change dots color to ramdom color
 
 function setup() {
   createCanvas(windowHeight, windowHeight)
@@ -96,6 +97,8 @@ class Artwork {
 
   //draw dots inside of the big circle, with different patterns and colors.
   drawDotsIn(x, y, i) {
+    // Change dots color into random color
+    Dotscolor = color(random(255), random(255), random(255));
     //outer circle
     if (i !== 1 && i !== 8 && i !== 14) {
       // Change from a fixed number to a random number of circles
@@ -109,7 +112,8 @@ class Artwork {
         for (let k = 0; k < numDot; k++) {
           let dotX = x + cos(angle * k) * (j * 7 + 45);
           let dotY = y + sin(angle * k) * (j * 7 + 45);
-          fill(this.ShapeColor[i].Out);
+          //change to random color
+          fill(Dotscolor);
           ellipse(dotX, dotY, DotRadius, DotRadius);
         }
       }
